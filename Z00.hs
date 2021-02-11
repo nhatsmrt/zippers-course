@@ -433,8 +433,12 @@ setFocus x = modifyFocus (\_ -> x)
 getFocus ::
   FiveOfZipper x
   -> x
-getFocus =
-  error "todo: Z00#getFocus"
+getFocus (FiveOfZipper a (FiveOfDerivative ind b c d e)) = case ind of
+  One -> a
+  Two -> b
+  Three -> c
+  Four -> d
+  Five -> e
 
 -- | Duplicate a zipper of zippers, from the given zipper.
 --
@@ -530,8 +534,7 @@ findRight ::
   (x -> Bool)
   -> FiveOfZipper x
   -> Maybe (FiveOfZipper x)
-findRight =
-  error "todo: Z00#findRight"
+findRight cond = satisfy moveRight (cond . getFocus)
 
 -- | Move the zipper focus left until the focus satisfies the given predicate.
 --
@@ -555,8 +558,7 @@ findLeft ::
   (x -> Bool)
   -> FiveOfZipper x
   -> Maybe (FiveOfZipper x)
-findLeft =
-  error "todo: Z00#findLeft"
+findLeft cond = satisfy moveLeft (cond . getFocus)
 
 -- | If the zipper focus satisfies the given predicate, return the given zipper.
 -- Otherwise, move the zipper focus left until the focus satisfies the given predicate.
@@ -586,8 +588,7 @@ findRightIncl p z =
 example1 ::
   FiveOf Integer
   -> Maybe (FiveOf Integer)
-example1 =
-  error "todo: Z00#example1"
+example1 fiveOf = fromFiveOfZipper <$> ((modifyFocus ((+) 1)) <$> ((findRightIncl even (toFiveOfZipper fiveOf)) >>= moveLeft))
 
 -- | Given 5 numbers, find the first multiple of 7,
 -- then modulo that number with 5 and move right (cycling at the right-most
@@ -610,5 +611,5 @@ example1 =
 example2 ::
   FiveOf Integer
   -> Maybe Integer
-example2 =
-  error "todo: Z00#example2"
+example2 fiveOf =
+  getFocus <$> ((\zipper -> moveCycle (fromInteger (getFocus zipper `mod` 5 + 1)) zipper) <$> (findRightIncl (\x -> x `mod` 7 == 0) (toFiveOfZipper fiveOf)))
