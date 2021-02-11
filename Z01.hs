@@ -235,8 +235,7 @@ getFocus (ListZipper focus _) = focus
 duplicate ::
   ListZipper x
   -> ListZipper (ListZipper x)
-duplicate =
-  error "todo: Z01#duplicate"
+duplicate zipper = ListZipper zipper (ListDerivative (unfoldDup moveLeft zipper) (unfoldDup moveRight zipper))
 
 -- | This is a test of `getFocus` and `duplicate` that should always return `Nothing`.
 -- If the test fails, two unequal values (which should be equal) are returned in `Just`.
@@ -371,8 +370,7 @@ findRight ::
   (x -> Bool)
   -> ListZipper x
   -> Maybe (ListZipper x)
-findRight =
-  error "todo: Z01#findRight"
+findRight cond zipper = find (cond . getFocus) ((rights . duplicate) zipper)
 
 -- | Move the zipper focus left until the focus satisfies the given predicate.
 --
@@ -390,8 +388,7 @@ findLeft ::
   (x -> Bool)
   -> ListZipper x
   -> Maybe (ListZipper x)
-findLeft =
-  error "todo: Z01#findLeft"
+findLeft cond zipper = find (cond . getFocus) ((lefts . duplicate) zipper)
 
 -- | If the zipper focus satisfies the given predicate, return the given zipper.
 -- Otherwise, move the zipper focus left until the focus satisfies the given predicate.
@@ -435,8 +432,12 @@ example1 ::
   Integral x =>
   [x]
   -> [x]
-example1 =
-  error "todo: Z01#example1"
+example1 lst = case findDesiredFocus even lst of
+  Nothing -> lst
+  Just zipper -> fromListZipper (modifyFocus ((+) 99) zipper)
+  where
+    findDesiredFocus :: (x -> Bool) -> [x] -> Maybe (ListZipper x)
+    findDesiredFocus cond lst = (moveEnd <$> (toListZipper lst)) >>= (findLeftIncl cond) >>= (findLeft cond) >>= moveRight
 
 data Move =
   MoveLeft
