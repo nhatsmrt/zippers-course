@@ -23,8 +23,8 @@ details.
 
 * ~~`Z00`~~
 
-  Zipper exercises around the `FiveOf` data type. This data type denotes a
-  vector of fixed-length `5`.
+  ~~Zipper exercises around the `FiveOf` data type. This data type denotes a
+  vector of fixed-length `5`.~~
 
 * `Z01`
 
@@ -32,4 +32,4 @@ details.
 
 * ~~`Z02`~~
 
-  Exercises around the relationship between comonads and all zippers.
+  ~~Exercises around the relationship between comonads and all zippers.~~
