@@ -50,7 +50,7 @@ rights ::
   -> [x]
 rights (ListZipper _ (ListDerivative _ r)) =
   r
-  
+
 -- | Returns the values to the right of the focus.
 lefts ::
   ListZipper x
@@ -72,8 +72,7 @@ instance Functor ListZipper where
 fromListZipper ::
   ListZipper x
   -> [x]
-fromListZipper =
-  error "todo: Z01#fromListZipper"
+fromListZipper zipper = ((reverse . lefts) zipper) ++ [getFocus zipper] ++ (rights zipper)
 
 -- | Create a zipper for a list of values, with focus on the first value.
 -- Returns `Nothing` if given an empty list.
@@ -83,8 +82,9 @@ fromListZipper =
 toListZipper ::
   [x]
   -> Maybe (ListZipper x)
-toListZipper =
-  error "todo: Z01#toListZipper"
+toListZipper lst = case lst of
+  h : t -> Just (ListZipper h (ListDerivative [] t))
+  _ -> Nothing
 
 -- | Move the zipper focus one position to the right.
 --
@@ -101,8 +101,9 @@ toListZipper =
 moveRight ::
   ListZipper x
   -> Maybe (ListZipper x)
-moveRight =
-  error "todo: Z01#moveRight"
+moveRight zipper = case rights zipper of
+  h : t -> Just (ListZipper h (ListDerivative ((getFocus zipper) : (lefts zipper)) t))
+  _ -> Nothing
 
 -- | Move the zipper focus one position to the left.
 --
@@ -119,8 +120,9 @@ moveRight =
 moveLeft ::
   ListZipper x
   -> Maybe (ListZipper x)
-moveLeft =
-  error "todo: Z01#moveLeft"
+moveLeft zipper = case lefts zipper of
+  h : t -> Just (ListZipper h (ListDerivative t ((getFocus zipper) : (rights zipper))))
+  _ -> Nothing
 
 -- | Move the zipper focus one position to the right.
 --
@@ -139,8 +141,10 @@ moveLeft =
 moveRightCycle ::
   ListZipper x
   -> ListZipper x
-moveRightCycle =
-  error "todo: Z01#moveRightCycle"
+moveRightCycle zipper = case rights zipper of
+  h : t -> ListZipper h (ListDerivative ((getFocus zipper) : (lefts zipper)) t)
+  [] -> case reverse1 (getFocus zipper, lefts zipper) of
+    (newFocus, newRight) -> ListZipper newFocus (ListDerivative [] newRight)
 
 -- | Move the zipper focus one position to the left.
 --
@@ -159,8 +163,10 @@ moveRightCycle =
 moveLeftCycle ::
   ListZipper x
   -> ListZipper x
-moveLeftCycle =
-  error "todo: Z01#moveLeftCycle"
+moveLeftCycle zipper = case lefts zipper of
+  h : t -> ListZipper h (ListDerivative t ((getFocus zipper) : (rights zipper)))
+  [] -> case reverse1 (getFocus zipper, rights zipper) of
+    (newFocus, newLeft) -> ListZipper newFocus (ListDerivative newLeft [])
 
 -- | Modify the zipper focus using the given function.
 --
@@ -176,8 +182,8 @@ modifyFocus ::
   (x -> x)
   -> ListZipper x
   -> ListZipper x
-modifyFocus =
-  error "todo: Z01#modifyFocus"
+modifyFocus f (ListZipper focus (ListDerivative left right)) =
+  (ListZipper (f focus) (ListDerivative left right))
 
 -- | Set the zipper focus to the given value.
 --
@@ -195,8 +201,7 @@ setFocus ::
   x
   -> ListZipper x
   -> ListZipper x
-setFocus =
-  error "todo: Z01#setFocus"
+setFocus x = modifyFocus (\_ -> x)
 
 -- | Return the zipper focus.
 --
@@ -211,8 +216,7 @@ setFocus =
 getFocus ::
   ListZipper x
   -> x
-getFocus =
-  error "todo: Z01#getFocus"
+getFocus (ListZipper focus _) = focus
 
 -- | Duplicate a zipper of zippers, from the given zipper.
 --
@@ -328,8 +332,9 @@ law3 x =
 moveEnd ::
   ListZipper x
   -> ListZipper x
-moveEnd =
-  error "todo: Z01#moveEnd"
+moveEnd zipper = case moveRight zipper of
+  Nothing -> zipper -- can't move right anymore
+  Just righted -> moveEnd righted
 
 -- | Move the zipper focus to the start position.
 --
@@ -346,8 +351,9 @@ moveEnd =
 moveStart ::
   ListZipper x
   -> ListZipper x
-moveStart =
-  error "todo: Z01#moveStart"
+moveStart zipper = case moveLeft zipper of
+  Nothing -> zipper -- can't move left anymore
+  Just lefted -> moveStart lefted
 
 -- | Move the zipper focus right until the focus satisfies the given predicate.
 --
@@ -410,19 +416,19 @@ findLeftIncl p z =
 --
 -- >>> example1 []
 -- []
--- 
+--
 -- >>> example1 [1]
 -- [1]
--- 
+--
 -- >>> example1 [2]
 -- [2]
--- 
+--
 -- >>> example1 [2,3]
 -- [2,3]
--- 
+--
 -- >>> example1 [2,3,4]
 -- [2,102,4]
--- 
+--
 -- >>> example1 [1,33,77,222,3,4]
 -- [1,33,77,222,102,4]
 example1 ::
