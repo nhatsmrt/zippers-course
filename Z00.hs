@@ -447,8 +447,9 @@ getFocus (FiveOfZipper a (FiveOfDerivative ind b c d e)) = case ind of
 duplicate ::
   FiveOfZipper x
   -> FiveOfZipper (FiveOfZipper x)
-duplicate =
-  error "todo: Z00#duplicate"
+duplicate (FiveOfZipper a (FiveOfDerivative ind b c d e)) =
+  let changeInd newInd = (FiveOfZipper a (FiveOfDerivative newInd b c d e)) in
+  FiveOfZipper (changeInd One) (FiveOfDerivative ind (changeInd Two) (changeInd Three) (changeInd Four) (changeInd Five))
 
 -- | This is a test of `getFocus` and `duplicate` that should always return `Nothing`.
 -- If the test fails, two unequal values (which should be equal) are returned in `Just`.
