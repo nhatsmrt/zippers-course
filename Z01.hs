@@ -7,6 +7,8 @@ import Control.Monad((>=>))
 import Data.Bool(bool)
 import Data.List(unfoldr, find)
 import Data.Maybe(fromMaybe)
+import Data.Set (Set)
+import qualified Data.Set as Set
 
 -- List x ~ 1 + x * List x
 type List x = [x]
@@ -484,5 +486,14 @@ example2 ::
   -> [Move]
   -> [([Move], String)]
   -> [([Move], String)]
-example2 =
-  error "todo: Z01#example2"
+example2 f moves lst = fromMaybe lst ((process Set.empty moves) <$> (toListZipper lst))
+  where
+    getInd = length . lefts
+
+    process visited moves zipper = case makeMoves moves zipper of
+      Nothing -> fromListZipper zipper -- invalid moves
+      Just movedZipper ->
+        let zipperInd = getInd movedZipper in
+        if Set.member zipperInd visited then fromListZipper movedZipper
+        else case getFocus movedZipper of
+          (moves, str) -> process (Set.insert zipperInd visited) moves (setFocus (moves, f str) movedZipper)

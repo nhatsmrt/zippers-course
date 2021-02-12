@@ -26,9 +26,9 @@ details.
   ~~Zipper exercises around the `FiveOf` data type. This data type denotes a
   vector of fixed-length `5`.~~
 
-* `Z01`
+* ~~`Z01`~~
 
-  Zipper exercises around a typical list.
+  ~~Zipper exercises around a typical list.~~
 
 * ~~`Z02`~~
 
